@@ -2,6 +2,6 @@
 <resources>
     <declare-styleable name="LoadingButton">
         <attr name="textSize" format="dimension" />
-
+        <attr name="circleRadius" format="dimension"/>
     </declare-styleable>
 </resources>

@@ -5,11 +5,12 @@ import android.content.Context
 import android.graphics.Canvas
 import android.util.AttributeSet
 import android.view.View
+import androidx.appcompat.widget.AppCompatButton
 import kotlin.properties.Delegates
 
 class LoadingButton @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
-) : View(context, attrs, defStyleAttr) {
+) : AppCompatButton(context, attrs, defStyleAttr) {
     private var widthSize = 0
     private var heightSize = 0
 

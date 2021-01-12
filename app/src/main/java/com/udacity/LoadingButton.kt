@@ -23,7 +23,6 @@ class LoadingButton @JvmOverloads constructor(
     private var rectF :RectF
     var rectangleProgress = RectF()
 
-    private val valueAnimator = ValueAnimator()
 
     private var buttonState: ButtonState by Delegates.observable<ButtonState>(ButtonState.Completed) { p, old, new ->
 

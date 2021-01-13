@@ -1,5 +1,7 @@
 package com.udacity
 
+import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.app.DownloadManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -12,6 +14,8 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
+import android.view.animation.LinearInterpolator
 import android.widget.RadioButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -37,7 +41,12 @@ class MainActivity : AppCompatActivity() {
         registerReceiver(receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
 
         custom_button.setOnClickListener {
+//            download()
+//            custom_button.startCircleAnimation()
+            custom_button.startRectangleAnimation()
+            Log.d("TAG","clicked")
             testNotif()
+
         }
 
         rg_choices.setOnCheckedChangeListener { radioGroup, checkedId  ->
@@ -79,8 +88,8 @@ class MainActivity : AppCompatActivity() {
                 .setAllowedOverRoaming(true)
 
         val downloadManager = getSystemService(DOWNLOAD_SERVICE) as DownloadManager
-        downloadID =
-            downloadManager.enqueue(request)// enqueue puts the download request in the queue.
+//        downloadID =
+//            downloadManager.enqueue(request)// enqueue puts the download request in the queue.
     }
 
     private fun createChannel(channelId: String, channelName: String){

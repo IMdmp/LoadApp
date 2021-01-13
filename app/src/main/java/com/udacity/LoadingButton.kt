@@ -2,10 +2,7 @@ package com.udacity
 
 import android.animation.ValueAnimator
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.Rect
+import android.graphics.*
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
@@ -21,7 +18,7 @@ class LoadingButton @JvmOverloads constructor(
 
     private var widthSize = 0
     private var heightSize = 0
-
+    private var rectF :RectF
     private val valueAnimator = ValueAnimator()
 
     private var buttonState: ButtonState by Delegates.observable<ButtonState>(ButtonState.Completed) { p, old, new ->
@@ -46,7 +43,7 @@ class LoadingButton @JvmOverloads constructor(
         isAntiAlias = true
         // Dithering affects how colors with higher-precision than the device are down-sampled.
         isDither = true
-        style = Paint.Style.STROKE // default: FILL
+        style = Paint.Style.FILL // default: FILL
         strokeJoin = Paint.Join.ROUND // default: MITER
         strokeCap = Paint.Cap.ROUND // default: BUTT
         textSize = fontSize
@@ -60,9 +57,8 @@ class LoadingButton @JvmOverloads constructor(
             fontSize = getDimension(R.styleable.LoadingButton_textSize, defFontSize)
             circleRadius = getDimension(R.styleable.LoadingButton_circleRadius, defFontSize)
             Log.d("TEST", "fontsize : $fontSize")
-
         }
-
+        rectF = RectF(0f,0f,circleRadius*2f,circleRadius*2f)
         textPaint.textSize = fontSize
     }
 
@@ -90,6 +86,10 @@ class LoadingButton @JvmOverloads constructor(
         val bounds = getTextBounds("sample text", textPaint)
         Log.d("TEST", "bounds: width: ${bounds}")
         canvas.drawCircle(width/2f + bounds.width(),height/2f, circleRadius, circlePaint)
+
+
+
+        canvas.drawArc(rectF,0f,90f,true,circlePaint)
     }
 
     fun getTextBounds(text: String, paint: Paint): Rect {
@@ -108,6 +108,7 @@ class LoadingButton @JvmOverloads constructor(
         )
         widthSize = w
         heightSize = h
+
         setMeasuredDimension(w, h)
     }
 

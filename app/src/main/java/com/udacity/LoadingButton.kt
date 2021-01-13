@@ -16,10 +16,13 @@ class LoadingButton @JvmOverloads constructor(
 ) : View(context, attrs, defStyleAttr) {
     private val backgroundColor: Int = ResourcesCompat.getColor(resources, R.color.purple, null)
     private val drawColor = ResourcesCompat.getColor(resources, R.color.darkBlue, null)
+    private val rectangleProgressColor = ResourcesCompat.getColor(resources,R.color.colorAccent,null)
     var currentSweepAngle =0f
     private var widthSize = 0
     private var heightSize = 0
     private var rectF :RectF
+    var rectangleProgress = RectF()
+
     private val valueAnimator = ValueAnimator()
 
     private var buttonState: ButtonState by Delegates.observable<ButtonState>(ButtonState.Completed) { p, old, new ->
@@ -36,6 +39,12 @@ class LoadingButton @JvmOverloads constructor(
         color = drawColor
         textSize = fontSize
         textAlign =Paint.Align.CENTER
+    }
+
+    private val rectanglePaint = Paint().apply{
+        color = rectangleProgressColor
+
+
     }
 
     private val circlePaint = Paint().apply {
@@ -73,8 +82,7 @@ class LoadingButton @JvmOverloads constructor(
         extraBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         extraCanvas = Canvas(extraBitmap)
         extraCanvas.drawColor(backgroundColor)
-
-
+        rectangleProgress = RectF(0f,0f,1f,heightSize.toFloat())
     }
 
 
@@ -90,7 +98,9 @@ class LoadingButton @JvmOverloads constructor(
 
         val bounds = getTextBounds("sample text", textPaint)
         Log.d("TEST", "bounds: width: ${bounds}")
-//        canvas.drawCircle(width/2f + bounds.width(),height/2f, circleRadius, circlePaint)
+
+        canvas.drawRect(rectangleProgress,rectanglePaint)
+
         canvas.save()
         canvas.translate(widthSize/2f+(bounds.right.toFloat()/2) + circleRadius,heightSize/2f -circleRadius)
         canvas.clipRect(
@@ -107,6 +117,17 @@ class LoadingButton @JvmOverloads constructor(
             interpolator = LinearInterpolator()
             addUpdateListener { valueAnimator ->
                 currentSweepAngle = valueAnimator.animatedValue as Float
+                invalidate()
+            }
+        }?.start()
+    }
+
+    fun startRectangleAnimation(){
+        ValueAnimator.ofFloat(0f, widthSize.toFloat()).apply {
+            duration = 650
+            interpolator = LinearInterpolator()
+            addUpdateListener { valueAnimator ->
+                rectangleProgress.right= valueAnimator.animatedValue as Float
                 invalidate()
             }
         }?.start()

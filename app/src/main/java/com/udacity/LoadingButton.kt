@@ -6,6 +6,7 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
+import android.view.animation.LinearInterpolator
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.content.withStyledAttributes
 import kotlin.properties.Delegates
@@ -15,7 +16,7 @@ class LoadingButton @JvmOverloads constructor(
 ) : View(context, attrs, defStyleAttr) {
     private val backgroundColor: Int = ResourcesCompat.getColor(resources, R.color.purple, null)
     private val drawColor = ResourcesCompat.getColor(resources, R.color.darkBlue, null)
-
+    var currentSweepAngle =0f
     private var widthSize = 0
     private var heightSize = 0
     private var rectF :RectF
@@ -48,6 +49,10 @@ class LoadingButton @JvmOverloads constructor(
         strokeCap = Paint.Cap.ROUND // default: BUTT
         textSize = fontSize
     }
+    private val clipRectRight = resources.getDimension(R.dimen.clipRectRight)
+    private val clipRectBottom = resources.getDimension(R.dimen.clipRectBottom)
+    private val clipRectTop = resources.getDimension(R.dimen.clipRectTop)
+    private val clipRectLeft = resources.getDimension(R.dimen.clipRectLeft)
 
 
     init {
@@ -85,11 +90,26 @@ class LoadingButton @JvmOverloads constructor(
 
         val bounds = getTextBounds("sample text", textPaint)
         Log.d("TEST", "bounds: width: ${bounds}")
-        canvas.drawCircle(width/2f + bounds.width(),height/2f, circleRadius, circlePaint)
+//        canvas.drawCircle(width/2f + bounds.width(),height/2f, circleRadius, circlePaint)
+        canvas.save()
+        canvas.translate(widthSize/2f+(bounds.right.toFloat()/2) + circleRadius,heightSize/2f -circleRadius)
+        canvas.clipRect(
+            clipRectLeft,clipRectTop,
+            clipRectRight,clipRectBottom
+        )
+        canvas.drawArc(rectF,0f,currentSweepAngle,true,circlePaint)
+        canvas.restore()
+    }
 
-
-
-        canvas.drawArc(rectF,0f,90f,true,circlePaint)
+    fun startCircleAnimation(){
+        ValueAnimator.ofFloat(0f, 360f).apply {
+            duration = 650
+            interpolator = LinearInterpolator()
+            addUpdateListener { valueAnimator ->
+                currentSweepAngle = valueAnimator.animatedValue as Float
+                invalidate()
+            }
+        }?.start()
     }
 
     fun getTextBounds(text: String, paint: Paint): Rect {

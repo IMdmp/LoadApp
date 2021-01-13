@@ -1,5 +1,7 @@
 package com.udacity
 
+import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.app.DownloadManager
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -9,6 +11,8 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
+import android.view.animation.LinearInterpolator
 import android.widget.RadioButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -33,7 +37,9 @@ class MainActivity : AppCompatActivity() {
         registerReceiver(receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
 
         custom_button.setOnClickListener {
-            download()
+//            download()
+            custom_button.startCircleAnimation()
+            Log.d("TAG","clicked")
         }
 
         rg_choices.setOnCheckedChangeListener { radioGroup, checkedId  ->

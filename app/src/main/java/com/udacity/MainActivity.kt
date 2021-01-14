@@ -42,7 +42,6 @@ class MainActivity : AppCompatActivity() {
 
         custom_button.setOnClickListener {
 //            download()
-//            custom_button.startCircleAnimation()
             Log.d("TAG","clicked")
 //            testNotif()
 

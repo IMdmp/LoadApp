@@ -6,9 +6,12 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
+import android.view.animation.Animation
 import android.view.animation.LinearInterpolator
+import androidx.core.animation.addListener
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.content.withStyledAttributes
+import androidx.interpolator.view.animation.LinearOutSlowInInterpolator
 import kotlin.properties.Delegates
 
 class LoadingButton @JvmOverloads constructor(
@@ -93,10 +96,23 @@ class LoadingButton @JvmOverloads constructor(
 //        canvas.drawBitmap(extraBitmap,0f,0f,null)
         canvas.drawColor(backgroundColor)
         var currText = ""
-
+        var showRect = false
+        var showCircle = false
         when(buttonState){
-            ButtonState.Loading -> currText = LOADING
-            ButtonState.Completed->currText = "Download"
+            ButtonState.Clicked->{
+                showRect  = true
+                showCircle = true
+            }
+            ButtonState.Loading -> {
+                currText = LOADING
+                showRect  = true
+                showCircle = true
+            }
+            ButtonState.Completed->{
+                showRect  = false
+                showCircle = false
+                currText = "Download"
+            }
         }
 
         val yPos =
@@ -104,8 +120,9 @@ class LoadingButton @JvmOverloads constructor(
 
 
         val bounds = getTextBounds(currText, textPaint)
-
-        canvas.drawRect(rectangleProgress,rectanglePaint)
+        if(showRect){
+            canvas.drawRect(rectangleProgress,rectanglePaint)
+        }
 
         canvas.save()
         canvas.translate(widthSize/2f+(bounds.right.toFloat()/2) + circleRadius,heightSize/2f -circleRadius)
@@ -113,7 +130,9 @@ class LoadingButton @JvmOverloads constructor(
             clipRectLeft,clipRectTop,
             clipRectRight,clipRectBottom
         )
-        canvas.drawArc(rectF,0f,currentSweepAngle,true,circlePaint)
+        if(showCircle){
+            canvas.drawArc(rectF,0f,currentSweepAngle,true,circlePaint)
+        }
         canvas.restore()
         canvas.drawText(currText, widthSize/2f, yPos.toFloat(), textPaint)
 
@@ -125,16 +144,20 @@ class LoadingButton @JvmOverloads constructor(
         buttonState = ButtonState.Clicked
 
         ValueAnimator.ofFloat(0f,100f).apply {
-            duration = 1000
-            interpolator = LinearInterpolator()
+            duration = 2000
+            interpolator = LinearOutSlowInInterpolator()
             addUpdateListener {valueAnimator->
                 rectangleProgress.right= valueAnimator.animatedValue as Float * rectMultiplier
                 currentSweepAngle = valueAnimator.animatedValue as Float *cicleMultiplier
                 buttonState = ButtonState.Loading
                 invalidate()
             }
+            addListener({
+                buttonState = ButtonState.Completed
+                invalidate()
+            })
         }?.start()
-        buttonState = ButtonState.Completed
+
     }
 
     fun startCircleAnimation(){

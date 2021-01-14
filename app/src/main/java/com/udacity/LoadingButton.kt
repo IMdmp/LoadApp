@@ -23,11 +23,14 @@ class LoadingButton @JvmOverloads constructor(
     private var rectF :RectF
     var rectangleProgress = RectF()
 
-
+    private val LOADING ="We are loading"
     private var buttonState: ButtonState by Delegates.observable<ButtonState>(ButtonState.Completed) { p, old, new ->
 
     }
 
+    init{
+        isClickable = true
+    }
     private var fontSize = 0f
     private var circleRadius = 0f
     private lateinit var extraCanvas: Canvas
@@ -89,14 +92,18 @@ class LoadingButton @JvmOverloads constructor(
         super.onDraw(canvas)
 //        canvas.drawBitmap(extraBitmap,0f,0f,null)
         canvas.drawColor(backgroundColor)
+        var currText = ""
+
+        when(buttonState){
+            ButtonState.Loading -> currText = LOADING
+            ButtonState.Completed->currText = "Download"
+        }
 
         val yPos =
             (height / 2 - (textPaint.descent() + textPaint.ascent()) / 2).toInt()
 
-        canvas.drawText("sample text", widthSize/2f, yPos.toFloat(), textPaint)
 
-        val bounds = getTextBounds("sample text", textPaint)
-        Log.d("TEST", "bounds: width: ${bounds}")
+        val bounds = getTextBounds(currText, textPaint)
 
         canvas.drawRect(rectangleProgress,rectanglePaint)
 
@@ -108,6 +115,26 @@ class LoadingButton @JvmOverloads constructor(
         )
         canvas.drawArc(rectF,0f,currentSweepAngle,true,circlePaint)
         canvas.restore()
+        canvas.drawText(currText, widthSize/2f, yPos.toFloat(), textPaint)
+
+    }
+
+    fun startAnimation(){
+        val cicleMultiplier = 3.6f
+        val rectMultiplier = widthSize.toFloat()/100
+        buttonState = ButtonState.Clicked
+
+        ValueAnimator.ofFloat(0f,100f).apply {
+            duration = 1000
+            interpolator = LinearInterpolator()
+            addUpdateListener {valueAnimator->
+                rectangleProgress.right= valueAnimator.animatedValue as Float * rectMultiplier
+                currentSweepAngle = valueAnimator.animatedValue as Float *cicleMultiplier
+                buttonState = ButtonState.Loading
+                invalidate()
+            }
+        }?.start()
+        buttonState = ButtonState.Completed
     }
 
     fun startCircleAnimation(){
@@ -130,6 +157,18 @@ class LoadingButton @JvmOverloads constructor(
                 invalidate()
             }
         }?.start()
+    }
+    override fun performClick(): Boolean {
+//        if(super.performClick()) return true
+
+
+        Log.d("TAG","perform click")
+        buttonState = ButtonState.Clicked
+        startAnimation()
+
+        invalidate()
+        super.performClick()
+        return true
     }
 
     fun getTextBounds(text: String, paint: Paint): Rect {

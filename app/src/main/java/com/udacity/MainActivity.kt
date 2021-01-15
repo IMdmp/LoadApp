@@ -1,7 +1,5 @@
 package com.udacity
 
-import android.animation.ObjectAnimator
-import android.animation.ValueAnimator
 import android.app.DownloadManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -15,7 +13,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.animation.LinearInterpolator
 import android.widget.RadioButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -29,9 +26,8 @@ class MainActivity : AppCompatActivity() {
 
     private var downloadID: Long = 0
 
-    private lateinit var notificationManager: NotificationManager
-    private lateinit var pendingIntent: PendingIntent
-    private lateinit var action: NotificationCompat.Action
+    private var selectedUrl = ""
+    private var selectedName = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,44 +37,66 @@ class MainActivity : AppCompatActivity() {
         registerReceiver(receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
 
         custom_button.setOnClickListener {
-//            download()
-            Log.d("TAG","clicked")
-//            testNotif()
-
+            download()
         }
 
-        rg_choices.setOnCheckedChangeListener { radioGroup, checkedId  ->
+        rg_choices.setOnCheckedChangeListener { radioGroup, checkedId ->
             val item = findViewById<RadioButton>(checkedId)
-            Toast.makeText(applicationContext," On checked change :"+
-                    " ${item.text}",
-                    Toast.LENGTH_SHORT).show()
+            Log.d("TAG", "item id: ${item.id}")
+            setSelectedUrlBasedOnId(item.id)
         }
 
         createChannel(
-                getString(R.string.load_app_channel_id),
-                getString(R.string.load_app_channel_name)
+            getString(R.string.load_app_channel_id),
+            getString(R.string.load_app_channel_name)
         )
+    }
+
+    private fun setSelectedUrlBasedOnId(id: Int) {
+        selectedUrl = when (id) {
+            R.id.rb_glide -> {
+                GLIDE_URL
+            }
+            R.id.rb_udacity -> {
+                GITHUB_URL
+            }
+            R.id.rb_retrofit -> {
+                RETROFIT_URL
+            }
+            else -> {
+                ""
+            }
+        }
     }
 
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val id = intent?.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
+            Log.d("TAG", "got id: $id")
+            testNotif()
         }
     }
-    private fun testNotif(){
+
+    private fun testNotif() {
         val notificationManager = ContextCompat.getSystemService(
-                this,
-                NotificationManager::class.java
+            this,
+            NotificationManager::class.java
         ) as NotificationManager
 
         notificationManager.sendNotification(
-                "Message Body",
-                this
+            "Download item complete",
+            this,
+            selectedName
         )
     }
+
     private fun download() {
+        if (selectedUrl.isEmpty()) {
+            showToast("Please select the file to download")
+            return
+        }
         val request =
-            DownloadManager.Request(Uri.parse(URL))
+            DownloadManager.Request(Uri.parse(selectedUrl))
                 .setTitle(getString(R.string.app_name))
                 .setDescription(getString(R.string.app_description))
                 .setRequiresCharging(false)
@@ -86,20 +104,30 @@ class MainActivity : AppCompatActivity() {
                 .setAllowedOverRoaming(true)
 
         val downloadManager = getSystemService(DOWNLOAD_SERVICE) as DownloadManager
-//        downloadID =
-//            downloadManager.enqueue(request)// enqueue puts the download request in the queue.
+        setSelectedNameBasedOnUrl(selectedUrl)
+        downloadID =
+            downloadManager.enqueue(request)// enqueue puts the download request in the queue.
     }
 
-    private fun createChannel(channelId: String, channelName: String){
+    private fun setSelectedNameBasedOnUrl(selectedUrl: String) {
+        selectedName = when(selectedUrl){
+            GLIDE_URL->{resources.getString(R.string.glide_image_loading_library_by_bumptech)}
+            RETROFIT_URL->{resources.getString(R.string.retrofit_type_safe_http_client_for_android_and_java_by_square_inc)}
+            GITHUB_URL->{resources.getString(R.string.loadapp_current_repository_by_udacity)}
+            else->{""}
+        }
+    }
+
+    private fun createChannel(channelId: String, channelName: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationChannel = NotificationChannel(
-                    channelId,
-                    channelName,
-                    NotificationManager.IMPORTANCE_DEFAULT
+                channelId,
+                channelName,
+                NotificationManager.IMPORTANCE_DEFAULT
             )
-                    .apply {
-                        setShowBadge(false)
-                    }
+                .apply {
+                    setShowBadge(false)
+                }
 
             notificationChannel.enableLights(true)
             notificationChannel.lightColor = Color.RED
@@ -107,16 +135,27 @@ class MainActivity : AppCompatActivity() {
             notificationChannel.description = getString(R.string.channel_description)
 
             val notificationManager = this.getSystemService(
-                    NotificationManager::class.java
+                NotificationManager::class.java
             )
             notificationManager.createNotificationChannel(notificationChannel)
 
         }
     }
 
+    private fun showToast(text: String) {
+        Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
+    }
+
     companion object {
-        private const val URL =
+        private const val GITHUB_URL =
             "https://github.com/udacity/nd940-c3-advanced-android-programming-project-starter/archive/master.zip"
+
+        private const val GLIDE_URL =
+            "https://github.com/bumptech/glide/archive/v4.11.0.zip"
+
+        private const val RETROFIT_URL =
+            "https://search.maven.org/remote_content?g=com.squareup.retrofit2&a=retrofit&v=LATEST"
+
         private const val CHANNEL_ID = "channelId"
     }
 

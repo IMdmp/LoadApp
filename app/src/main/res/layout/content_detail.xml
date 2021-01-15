@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.motion.widget.MotionLayout
+    android:id="@+id/cl_detail"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,6 +10,7 @@
     tools:context=".DetailActivity"
     tools:showIn="@layout/activity_detail"
     android:padding="8dp"
+    app:layoutDescription="@xml/content_detail_scene"
     >
 
 
@@ -19,7 +22,7 @@
         android:padding="16dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="File Name: " />
+        android:text="File Name: " />
 
     <TextView
         android:id="@+id/tv_file_name"
@@ -38,7 +41,7 @@
         android:padding="16dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_label_file_name"
-        tools:text="Status" />
+        android:text="Status" />
 
     <TextView
         android:id="@+id/tv_status"
@@ -61,4 +64,4 @@
         android:background="@color/colorAccent"
         android:textColor="@color/white"
         />
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.motion.widget.MotionLayout>
